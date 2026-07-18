@@ -8,76 +8,145 @@
     <title>Register - Library Management System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .auth-logo { text-align: center; margin-bottom: 20px; }
-        .auth-logo img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(99, 136, 255, 0.5); object-fit: cover; }
-        .auth-links { margin-top: 24px; text-align: center; font-size: 13px; }
-        .auth-links a { color: var(--primary); text-decoration: none; transition: color 0.3s ease; font-weight: 500; }
-        .auth-links a:hover { color: #fff; text-decoration: underline; }
-        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
-        .msg-error { display:block!important; background:rgba(248,113,113,0.15); color:#fca5a5; border:1px solid rgba(248,113,113,0.25); }
-        .msg-success { display:block!important; background:rgba(52,211,153,0.15); color:#6ee7b7; border:1px solid rgba(52,211,153,0.25); }
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .auth-logo {
+            margin-bottom: 16px;
+        }
+        .auth-logo img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid rgba(244, 114, 182, 0.5);
+            object-fit: cover;
+        }
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        #register-form {
+            text-align: left;
+        }
+        .auth-links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .auth-links a {
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        #msg-box {
+            display: none;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .msg-error { display: block!important; background: var(--status-error-bg); color: var(--status-error); border: 1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display: block!important; background: var(--status-success-bg); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.25); }
+        .back-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: var(--text-primary);
+        }
     </style>
 </head>
 
 <body class="subpage">
 
-    <h2 class="page-title"><i data-lucide="user-circle"></i> Create Account</h2>
+    <a href="/" class="back-link"><i data-lucide="arrow-left" style="width: 18px;"></i> Back to Home</a>
 
-    <form id="register-form">
-        <div class="auth-logo">
-            <img src="{{ url_for('static', filename='my_logo.jpg') }}" alt="LMS Logo">
-        </div>
-
-        <div id="msg-box"></div>
-
-        <label for="full-name">Full Name:</label>
-        <input type="text" id="full-name" name="full_name" placeholder="e.g. Rahul Sharma" required>
-
-        <label for="email">Email Address:</label>
-        <input type="email" id="email" name="email" placeholder="e.g. rahul@gmail.com" required>
-
-        <label for="role">Role:</label>
-        <select id="role" name="role" required onchange="toggleAdminSecret(this.value)">
-            <option value="">-- Select Role --</option>
-            <option value="student">Student</option>
-            <option value="admin">Librarian</option>
-        </select>
-
-        <div id="admin-secret-group" style="display: none;">
-            <label for="admin-secret">Admin Registration Secret:</label>
-            <div class="password-wrapper">
-                <input type="password" id="admin-secret" name="adminSecret" placeholder="Enter secret key">
-                <span class="password-toggle" onclick="togglePassword('admin-secret', this)">
-                    <i data-lucide="eye"></i>
-                </span>
+    <div class="auth-container">
+        <div class="auth-card glass-panel">
+            <div class="auth-logo">
+                <img src="{{ url_for('static', filename='my.logo.png') }}" alt="LMS Logo">
             </div>
-        </div>
+            
+            <h2 class="auth-title">Create Account</h2>
+            <p class="auth-subtitle">Join the Smart Library Management System</p>
 
-        <label for="password">Password (8+ chars, upper, lower, num, special):</label>
-        <div class="password-wrapper">
-            <input type="password" id="password" name="password" placeholder="••••••••" required>
-            <span class="password-toggle" onclick="togglePassword('password', this)">
-                <i data-lucide="eye"></i>
-            </span>
-        </div>
+            <form id="register-form">
+                <div id="msg-box"></div>
 
-        <label for="confirm-password">Confirm Password:</label>
-        <div class="password-wrapper">
-            <input type="password" id="confirm-password" name="confirm_password" placeholder="••••••••" required>
-            <span class="password-toggle" onclick="togglePassword('confirm-password', this)">
-                <i data-lucide="eye"></i>
-            </span>
-        </div>
+                <label for="full-name">Full Name:</label>
+                <input type="text" id="full-name" name="full_name" placeholder="e.g. Rahul Sharma" required>
 
-        <input type="submit" value="Register Account" id="submit-btn">
-        
-        <div class="auth-links">
-            <span style="color: var(--text-subtle)">Already have an account?</span> 
-            <a href="/login">Login here</a>
-        </div>
-    </form>
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" placeholder="e.g. rahul@gmail.com" required>
 
-    <a href="/" class="back-link"><i data-lucide="arrow-left"></i> Back to Home</a>
+                <label for="role">Role:</label>
+                <select id="role" name="role" required onchange="toggleAdminSecret(this.value)">
+                    <option value="">-- Select Role --</option>
+                    <option value="student">Student</option>
+                    <option value="admin">Librarian</option>
+                </select>
+
+                <div id="admin-secret-group" style="display: none;">
+                    <label for="admin-secret">Admin Registration Secret:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="admin-secret" name="adminSecret" placeholder="Enter secret key">
+                        <span class="password-toggle" onclick="togglePassword('admin-secret', this)">
+                            <i data-lucide="eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <label for="password">Password (8+ chars, upper, lower, num, special):</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <span class="password-toggle" onclick="togglePassword('password', this)">
+                        <i data-lucide="eye"></i>
+                    </span>
+                </div>
+
+                <label for="confirm-password">Confirm Password:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirm-password" name="confirm_password" placeholder="••••••••" required>
+                    <span class="password-toggle" onclick="togglePassword('confirm-password', this)">
+                        <i data-lucide="eye"></i>
+                    </span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submit-btn" style="width: 100%; margin-top: 12px; padding: 12px; justify-content: center;">Register Account</button>
+                
+                <div class="auth-links">
+                    <span style="color: var(--text-subtle)">Already have an account?</span> 
+                    <a href="/login">Login here</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="{{ url_for('static', filename='utils.js') }}"></script>
