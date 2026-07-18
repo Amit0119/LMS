@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .profile-container { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 24px; }
+        .profile-left { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 24px; }
+        .profile-right { flex: 2; min-width: 400px; display: flex; flex-direction: column; gap: 24px; }
+        
+        .id-card-wrapper { text-align: center; padding: 30px; position: relative; overflow: hidden; }
+        .id-card-wrapper::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 50%); z-index: 0; pointer-events: none; }
+        .avatar-lg { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: var(--accent-gradient); color: white; font-size: 36px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; position: relative; z-index: 1; cursor: pointer; border: 3px solid var(--border-glass-light); box-shadow: 0 8px 32px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .avatar-lg:hover { transform: scale(1.05); }
+        .avatar-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .avatar-lg:hover .avatar-overlay { opacity: 1; }
+        
+        .role-badge { display: inline-block; padding: 4px 12px; background: rgba(16, 185, 129, 0.1); color: var(--status-success); border-radius: 20px; font-size: 0.8rem; font-weight: 500; margin-bottom: 24px; z-index: 1; position: relative;}
+        .admin-badge { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); }
+        
+        .barcode-container { background: white; padding: 10px; border-radius: 8px; display: inline-block; position: relative; z-index: 1;}
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: var(--text-primary); margin-bottom: 4px; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-glass); }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-info h4 { margin: 0 0 4px 0; color: var(--text-primary); font-size: 1rem; }
+        .setting-info p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+        
+        /* Toggle Switch */
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--text-secondary); transition: .4s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: var(--accent-blue); }
+        input:checked + .toggle-slider:before { transform: translateX(20px); background-color: white; }
+        
+        /* Admin layout overrides */
+        .admin-layout { flex-direction: column; align-items: center; max-width: 600px; margin: 24px auto 0; }
+        .admin-layout .profile-left, .admin-layout .profile-right { width: 100%; min-width: 100%; margin: 0; padding: 0; }
+        .admin-layout .profile-left { gap: 0; }
+        .admin-layout .id-card-wrapper { background: transparent; border: none; box-shadow: none; padding-bottom: 8px; padding-top: 0; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <main class="main-wrapper" style="margin-left: 0; padding: 20px;">
+        <div style="max-width: 1200px; margin: 0 auto; width: 100%;">
+            <header class="top-nav" style="border-radius: var(--radius-lg); margin-bottom: 24px;">
+            <div class="page-title">
+                <h1>My Profile</h1>
+            </div>
+            <div class="nav-actions">
+                <button onclick="goBack()" class="btn btn-secondary"><i data-lucide="arrow-left" style="width: 16px;"></i> Back to Dashboard</button>
+            </div>
+        </header>
+
+        <div id="msg-box" style="display: none; padding: 12px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13px; font-weight: 500; text-align: center;"></div>
+
+        <div class="profile-container">
+            
+            <!-- Left Column: ID & Stats -->
+            <div class="profile-left">
+                <!-- Digital ID Card -->
+                <div class="glass-card id-card-wrapper">
+                    <div class="avatar-lg" id="id-avatar" title="Click to upload profile photo">
+                        <span id="avatar-content">U</span>
+                        <div class="avatar-overlay">
+                            <i data-lucide="camera"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                    
+                    <h2 id="id-name" style="margin-bottom: 8px; color: var(--text-primary);">Loading...</h2>
+                    <div class="role-badge" id="id-role">Member</div>
+                    
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Library ID</p>
+                        <div class="barcode-container">
+                            <svg id="barcode"></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="glass-card" id="lifetime-stats-card">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i data-lucide="bar-chart-2" style="width: 18px;"></i> Lifetime Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-read">0</div>
+                            <div class="stat-label">Books Read</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-issued">0</div>
+                            <div class="stat-label">Currently Issued</div>
+                        </div>
+                        <div class="stat-box" style="grid-column: 1 / -1;">
+                            <div class="stat-value" id="stat-fine" style="color: var(--status-error);">₹0</div>
+                            <div class="stat-label">Total Fine Accrued</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Forms & Settings -->
+            <div class="profile-right">
+                <!-- Personal Details Form -->
+                <div class="glass-card">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 24px; display: flex; align-items: center; gap: 8px;"><i data-lucide="user-cog" style="width: 18px;"></i> Personal Details</h3>
+                    
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Email Address <span style="color: var(--status-warning); font-size: 0.8rem; margin-left: 8px;">(Cannot be changed)</span></label>
+                            <input type="email" id="edit-email" class="form-control" disabled style="background: rgba(0,0,0,0.2); opacity: 0.7;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="edit-name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="edit-phone" class="form-control" placeholder="e.g. +91 9876543210">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="btn-save" style="width: 100%; margin-top: 16px;"><i data-lucide="save" style="width: 16px;"></i> Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="glass-card">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i data-lucide="settings" style="width: 18px;"></i> Account Settings</h3>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>App Theme</h4>
+                            <p>Dark mode is default for the Glassmorphism theme.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="theme-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Email Notifications</h4>
+                            <p>Receive reminders for due dates and fines</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notif-toggle" checked onchange="showMessage('msg-box', 'Remember to click Save Changes to apply this setting.', 'success')">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top: 24px;">
+                        <button onclick="window.location.href='/reset-password'" class="btn btn-secondary" style="width: 100%;"><i data-lucide="key-round" style="width: 16px;"></i> Change Password</button>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='profile.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth(); // Either role can access
+    
+    function goBack() {
+        const user = getCurrentUser();
+        if (user && user.role === 'admin') {
+            window.location.href = '/';
+        } else {
+            window.location.href = '/student-dashboard';
+        }
+    }
+</script>
+
+</body>
+</html>

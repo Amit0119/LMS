@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Library Management UI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/my.logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-glass-light);">
+            <span class="sidebar-title">SmartLMS</span>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/" class="active">
+                    <i data-lucide="layout-dashboard" class="icon"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/viewbook">
+                    <i data-lucide="book" class="icon"></i> Book Inventory
+                </a>
+            </li>
+            <li>
+                <a href="/viewmember">
+                    <i data-lucide="users" class="icon"></i> Members
+                </a>
+            </li>
+            <li>
+                <a href="/all-transactions">
+                    <i data-lucide="arrow-left-right" class="icon"></i> Transactions
+                </a>
+            </li>
+            <li>
+                <a href="/analytics">
+                    <i data-lucide="bar-chart-2" class="icon"></i> Analytics
+                </a>
+            </li>
+            <li>
+                <a href="/settings">
+                    <i data-lucide="settings" class="icon"></i> Settings
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-nav">
+            <div class="page-title">
+                <h1>Overview</h1>
+                <p>Library Intelligence - <span id="current-month">July 2026</span></p>
+                <h2 style="font-size: 2rem; font-weight: 700; margin-top: 10px;">Good morning, <span id="welcome-name" style="color: var(--accent-purple);">Admin</span> ✨</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Your library is flowing smoothly. Here's what needs your attention today.</p>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="search-bar">
+                    <i data-lucide="search" style="width: 16px; color: var(--text-muted);"></i>
+                    <input type="text" id="dashboard-search" placeholder="Search books, members...">
+                </div>
+                <!-- Issue Book Button (Primary Action in Nav) -->
+                <a href="/issuebook" class="btn btn-primary">Issue a book</a>
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-area">
+            
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="glass-card metric-card">
+                    <span class="metric-title">Total Books</span>
+                    <span class="metric-value" id="total-books">0</span>
+                    <span class="metric-trend trend-up"><i data-lucide="trending-up" style="width: 14px;"></i> +1.2% vs. last month</span>
+                </div>
+                <div class="glass-card metric-card">
+                    <span class="metric-title">Active Members</span>
+                    <span class="metric-value" id="total-members">0</span>
+                    <span class="metric-trend trend-up"><i data-lucide="trending-up" style="width: 14px;"></i> +3.1% vs. last month</span>
+                </div>
+                <div class="glass-card metric-card">
+                    <span class="metric-title">Books Issued</span>
+                    <span class="metric-value" id="active-txns">0</span>
+                    <span class="metric-trend trend-up"><i data-lucide="trending-up" style="width: 14px;"></i> +5.7% vs. last month</span>
+                </div>
+                <div class="glass-card metric-card">
+                    <span class="metric-title">Overdue Books</span>
+                    <span class="metric-value" id="overdue-books" style="color: var(--status-error);">0</span>
+                    <span class="metric-trend trend-down"><i data-lucide="trending-down" style="width: 14px;"></i> -2.3% vs. last month</span>
+                </div>
+            </div>
+
+            <!-- Two Column Layout: Operations and Library Capacity -->
+            <div class="flex-between gap-4 mb-6" style="align-items: stretch;">
+                <!-- Quick Actions / Operations -->
+                <div class="glass-card" style="flex: 2;">
+                    <div class="flex-between mb-4">
+                        <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase;">Operations</h3>
+                        <a href="/all-transactions" style="color: var(--accent-blue); font-size: 0.9rem;">View all <i data-lucide="chevron-right" style="width: 14px; vertical-align: middle;"></i></a>
+                    </div>
+                    <div style="display: flex; gap: 16px;">
+                        <a href="/issuebook" class="glass-card" style="flex: 1; text-align: center; padding: 20px 10px; border: 1px solid var(--border-glass-light); cursor: pointer; transition: all 0.2s ease;">
+                            <div style="background: var(--border-glass); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--accent-blue);">
+                                <i data-lucide="send"></i>
+                            </div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 4px;">Issue book</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Start a checkout</p>
+                        </a>
+                        <a href="/addbook" class="glass-card" style="flex: 1; text-align: center; padding: 20px 10px; border: 1px solid var(--border-glass-light); cursor: pointer; transition: all 0.2s ease;">
+                            <div style="background: var(--border-glass); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--status-success);">
+                                <i data-lucide="plus"></i>
+                            </div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 4px;">Add book</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Grow catalog</p>
+                        </a>
+                        <a href="/returnbook" class="glass-card" style="flex: 1; text-align: center; padding: 20px 10px; border: 1px solid var(--border-glass-light); cursor: pointer; transition: all 0.2s ease;">
+                            <div style="background: var(--border-glass); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--accent-purple);">
+                                <i data-lucide="undo-2"></i>
+                            </div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 4px;">Return book</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Process a return</p>
+                        </a>
+                        <a href="/addmember" class="glass-card" style="flex: 1; text-align: center; padding: 20px 10px; border: 1px solid var(--border-glass-light); cursor: pointer; transition: all 0.2s ease;">
+                            <div style="background: var(--border-glass); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--status-warning);">
+                                <i data-lucide="user-plus"></i>
+                            </div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 4px;">Add member</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Register profile</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Live Inventory Capacity -->
+                <div class="glass-card" style="flex: 1;">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 20px;">Live Inventory Capacity</h3>
+                    <div class="flex-between">
+                        <div style="position: relative; width: 120px; height: 120px;">
+                            <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                                <path stroke="var(--border-glass-light)" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="inventory-circle" stroke="var(--accent-purple)" stroke-width="3" stroke-dasharray="81, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                <span id="inventory-percent" style="font-size: 1.5rem; font-weight: bold; color: var(--text-primary);">81%</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
+                            <div class="flex-between" style="width: 120px;">
+                                <span><span style="display: inline-block; width: 8px; height: 8px; background: var(--accent-purple); border-radius: 50%; margin-right: 6px;"></span>Available</span>
+                                <span style="color: var(--text-primary); font-weight: 500;" id="cap-avail">--</span>
+                            </div>
+                            <div class="flex-between" style="width: 120px;">
+                                <span><span style="display: inline-block; width: 8px; height: 8px; background: var(--accent-blue); border-radius: 50%; margin-right: 6px;"></span>Issued</span>
+                                <span style="color: var(--text-primary); font-weight: 500;" id="cap-issued">--</span>
+                            </div>
+                            <div class="flex-between" style="width: 120px;">
+                                <span><span style="display: inline-block; width: 8px; height: 8px; background: var(--status-warning); border-radius: 50%; margin-right: 6px;"></span>Reserved</span>
+                                <span style="color: var(--text-primary); font-weight: 500;" id="cap-resv">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions Table -->
+            <div class="glass-card" id="transactions">
+                <div class="flex-between mb-4">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase;">Latest Activity - Recent Transactions</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <button class="btn btn-secondary" onclick="exportTransactionsCSV()" style="font-size: 0.85rem; padding: 6px 12px;">
+                            <i data-lucide="download" style="width: 14px;"></i> Export CSV
+                        </button>
+                        <a href="/all-transactions" style="color: var(--accent-blue); font-size: 0.9rem;">View all <i data-lucide="chevron-right" style="width: 14px; vertical-align: middle;"></i></a>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Member Name</th>
+                                <th>Book Title</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamically loaded by loadRecentTransactions() -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("admin");
+    loadAdminDashboard();
+    loadRecentTransactions();
+    
+    // Set current month in header
+    const date = new Date();
+    document.getElementById('current-month').textContent = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+</script>
+
+</body>
+</html>

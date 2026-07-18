@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Delete a book from the Library Management System catalog.">
+    <title>Delete Book - Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:rgba(248,113,113,0.15); color:#fca5a5; border:1px solid rgba(248,113,113,0.25); }
+        .msg-success { display:block!important; background:rgba(52,211,153,0.15); color:#6ee7b7; border:1px solid rgba(52,211,153,0.25); }
+    </style>
+</head>
+
+<body class="subpage">
+
+    <h2 class="page-title"><i data-lucide="trash-2"></i> Delete Book</h2>
+
+    <form id="find-book-form">
+        <div id="msg-box"></div>
+
+        <label for="book-id">Enter Book ID to Delete:</label>
+        <input type="text" id="book-id" name="book_id" placeholder="e.g. B001" required>
+
+        <label for="book-name">Or Enter Book Name:</label>
+        <input type="text" id="book-name" name="book_name" placeholder="e.g. Python Programming">
+
+        <input type="submit" value="Find Book">
+    </form>
+
+    <div class="subpage-table-wrapper narrow mt-30 hidden" id="delete-confirm-section">
+        <h2>Book Details</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Book ID</strong></td><td id="detail-id">—</td></tr>
+                <tr><td><strong>Book Name</strong></td><td id="detail-name">—</td></tr>
+                <tr><td><strong>Author</strong></td><td id="detail-author">—</td></tr>
+                <tr><td><strong>Category</strong></td><td id="detail-category">—</td></tr>
+                <tr><td><strong>Total Copies</strong></td><td id="detail-copies">—</td></tr>
+                <tr><td><strong>Status</strong></td><td id="detail-status">—</td></tr>
+            </tbody>
+        </table>
+
+        <form id="confirm-delete-form" class="mt-20" style="background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2);">
+            <p style="color: rgba(255,255,255,0.8); font-size:13px; margin-bottom: 16px; line-height:1.6;">
+                <strong>Are you sure?</strong> This action cannot be undone. The book record will be permanently deleted.
+            </p>
+            <input type="submit" value="Yes, Delete Book" class="btn-danger">
+        </form>
+    </div>
+
+    <a href="/" class="back-link"><i data-lucide="arrow-left"></i> Back to Home</a>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='api_client.js') }}"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='books.js') }}"></script>
+    <script>
+        lucide.createIcons();
+        checkAuth("admin");
+        document.getElementById("find-book-form").addEventListener("submit", handleFindBook);
+        document.getElementById("confirm-delete-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            handleDeleteBook();
+        });
+    </script>
+</body>
+
+</html>

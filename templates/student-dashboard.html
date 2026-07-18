@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header" style="padding: 24px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-glass);">
+            <img src="{{ url_for('static', filename='my.logo.png') }}" alt="Logo" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(244, 114, 182, 0.5);">
+            <span id="library-name-display" style="font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">LMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/student-dashboard" class="active"><i data-lucide="layout-dashboard" class="icon"></i> My Dashboard</a></li>
+            <li><a href="/student-catalog"><i data-lucide="search" class="icon"></i> Search Catalog</a></li>
+            <li><a href="/student-borrowed"><i data-lucide="book-open" class="icon"></i> My Borrowed Books</a></li>
+            <li><a href="/pay-fines"><i data-lucide="credit-card" class="icon"></i> Pay Fines</a></li>
+            <li><a href="/profile"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-nav">
+            <div class="page-title">
+                <p>Welcome back,</p>
+                <h1 id="welcome-name">Student</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/student-catalog" class="btn btn-primary"><i data-lucide="search"></i> Find Books</a>
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <div class="metrics-grid" id="stats" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="glass-card metric-card">
+                    <div class="metric-title"><i data-lucide="book-copy" style="width: 16px; display: inline-block; margin-bottom: -3px; color: var(--accent-blue);"></i> Books Borrowed</div>
+                    <div class="metric-value" id="student-borrowed-count">0</div>
+                    <div class="metric-trend"><span class="trend-up">Currently Issued</span></div>
+                </div>
+                <div class="glass-card metric-card">
+                    <div class="metric-title"><i data-lucide="clock" style="width: 16px; display: inline-block; margin-bottom: -3px; color: var(--status-warning);"></i> Overdue Books</div>
+                    <div class="metric-value" id="student-overdue-count">0</div>
+                    <div class="metric-trend"><span class="trend-down">Return Pending</span></div>
+                </div>
+                <div class="glass-card metric-card">
+                    <div class="metric-title"><i data-lucide="indian-rupee" style="width: 16px; display: inline-block; margin-bottom: -3px; color: var(--status-error);"></i> Pending Fines</div>
+                    <div class="metric-value" id="student-fine-count">₹0</div>
+                    <div class="metric-trend"><span class="trend-down">To be paid</span></div>
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <div class="flex-between mb-4">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase;">My Recent History</h3>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Book Name</th>
+                                <th>Book ID</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-recent-history-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("student");
+    loadStudentDashboard();
+    loadStudentHistory();
+</script>
+
+</body>
+</html>

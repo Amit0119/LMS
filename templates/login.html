@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to the Library Management System.">
+    <title>Login - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-logo {
+            margin-bottom: 24px;
+        }
+        .auth-logo div {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 20px;
+            margin: 0 auto;
+        }
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+        #login-form {
+            text-align: left;
+        }
+        .forgot-password {
+            display: block;
+            text-align: right;
+            font-size: 0.85rem;
+            margin-top: -12px;
+            margin-bottom: 24px;
+            color: var(--accent-purple);
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+        .forgot-password:hover {
+            opacity: 0.8;
+        }
+        .auth-links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .auth-links a {
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        #msg-box {
+            display: none;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .msg-error { display: block !important; background: var(--status-error-bg); color: var(--status-error); border: 1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display: block !important; background: var(--status-success-bg); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.25); }
+        .password-wrapper { position: relative; }
+        .password-toggle { position: absolute; right: 12px; top: 12px; color: var(--text-muted); cursor: pointer; }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="glass-card auth-card">
+            <div class="auth-logo">
+                <div>LMS</div>
+            </div>
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Enter your credentials to access your account</p>
+
+            <form id="login-form">
+                <div id="msg-box"></div>
+
+                <div class="form-group">
+                    <label for="role">Login As</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="student">Student</option>
+                        <option value="admin">Librarian</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="e.g. rahul@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <span class="password-toggle" onclick="togglePassword('password', this)">
+                            <i data-lucide="eye" style="width: 18px;"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <a href="/forgot-password" class="forgot-password">Forgot Password?</a>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Sign In</button>
+                
+                <div class="auth-links">
+                    <span style="color: var(--text-secondary)">Don't have an account?</span> 
+                    <a href="/register">Register here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='api_client.js') }}"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script>
+        lucide.createIcons();
+        document.getElementById("login-form").addEventListener("submit", handleLogin);
+
+        // Auto-clear accounts if url has ?clear=true
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('clear') === 'true') {
+            localStorage.removeItem("lms_users");
+            alert("✅ Sabhi accounts successfully delete ho gaye hain! Ab aap naya account bana sakte hain.");
+            window.location.href = "/login";
+        }
+    </script>
+</body>
+</html>

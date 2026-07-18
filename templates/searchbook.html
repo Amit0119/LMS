@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Book - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:var(--status-error-bg); color:var(--status-error); border:1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display:block!important; background:var(--status-success-bg); color:var(--status-success); border:1px solid rgba(16, 185, 129, 0.25); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/my.logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-glass-light);">
+            <span class="sidebar-title">SmartLMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i data-lucide="layout-dashboard" class="icon"></i> Dashboard</a></li>
+            <li><a href="/viewbook"><i data-lucide="book" class="icon"></i> Book Inventory</a></li>
+            <li><a href="/viewmember"><i data-lucide="users" class="icon"></i> Members</a></li>
+            <li><a href="/all-transactions"><i data-lucide="arrow-left-right" class="icon"></i> Transactions</a></li>
+            <li><a href="/analytics"><i data-lucide="bar-chart-2" class="icon"></i> Analytics</a></li>
+            <li><a href="/settings"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-nav">
+            <div class="page-title">
+                <p>Catalog Search</p>
+                <h1>Search Book</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <div class="glass-card" style="margin-bottom: 24px;">
+                <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 16px;">Search Parameters</h3>
+                
+                <form id="search-book-form" class="flex-start gap-4" style="align-items: center;">
+                    <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+                        <select id="search-by" name="search_by" class="form-control" required>
+                            <option value="name">Book Name</option>
+                            <option value="author">Author Name</option>
+                            <option value="id">Book ID</option>
+                            <option value="category">Category</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0; flex: 1; max-width: 400px;">
+                        <input type="text" id="search-query" name="search_input" class="form-control" placeholder="Type here to search..." required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="padding: 11px 24px;">Search</button>
+                </form>
+                
+                <div id="msg-box" style="margin-top: 16px;"></div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 16px;">Search Results</h3>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Book ID</th>
+                                <th>Book Name</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>Available</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="search-results-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                                    Search results will appear here...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='books.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("admin");
+    const form = document.getElementById("search-book-form");
+    form.addEventListener("submit", handleSearchBook);
+    
+    // Auto-search if query param 'q' exists
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+        document.getElementById("search-query").value = query;
+        // Create a fake submit event
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
+</script>
+
+</body>
+</html>

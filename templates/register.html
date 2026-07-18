@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register an account for the Library Management System.">
+    <title>Register - Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .auth-logo { text-align: center; margin-bottom: 20px; }
+        .auth-logo img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(99, 136, 255, 0.5); object-fit: cover; }
+        .auth-links { margin-top: 24px; text-align: center; font-size: 13px; }
+        .auth-links a { color: var(--primary); text-decoration: none; transition: color 0.3s ease; font-weight: 500; }
+        .auth-links a:hover { color: #fff; text-decoration: underline; }
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:rgba(248,113,113,0.15); color:#fca5a5; border:1px solid rgba(248,113,113,0.25); }
+        .msg-success { display:block!important; background:rgba(52,211,153,0.15); color:#6ee7b7; border:1px solid rgba(52,211,153,0.25); }
+    </style>
+</head>
+
+<body class="subpage">
+
+    <h2 class="page-title"><i data-lucide="user-circle"></i> Create Account</h2>
+
+    <form id="register-form">
+        <div class="auth-logo">
+            <img src="{{ url_for('static', filename='my_logo.jpg') }}" alt="LMS Logo">
+        </div>
+
+        <div id="msg-box"></div>
+
+        <label for="full-name">Full Name:</label>
+        <input type="text" id="full-name" name="full_name" placeholder="e.g. Rahul Sharma" required>
+
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" placeholder="e.g. rahul@gmail.com" required>
+
+        <label for="role">Role:</label>
+        <select id="role" name="role" required onchange="toggleAdminSecret(this.value)">
+            <option value="">-- Select Role --</option>
+            <option value="student">Student</option>
+            <option value="admin">Librarian</option>
+        </select>
+
+        <div id="admin-secret-group" style="display: none;">
+            <label for="admin-secret">Admin Registration Secret:</label>
+            <div class="password-wrapper">
+                <input type="password" id="admin-secret" name="adminSecret" placeholder="Enter secret key">
+                <span class="password-toggle" onclick="togglePassword('admin-secret', this)">
+                    <i data-lucide="eye"></i>
+                </span>
+            </div>
+        </div>
+
+        <label for="password">Password (8+ chars, upper, lower, num, special):</label>
+        <div class="password-wrapper">
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
+            <span class="password-toggle" onclick="togglePassword('password', this)">
+                <i data-lucide="eye"></i>
+            </span>
+        </div>
+
+        <label for="confirm-password">Confirm Password:</label>
+        <div class="password-wrapper">
+            <input type="password" id="confirm-password" name="confirm_password" placeholder="••••••••" required>
+            <span class="password-toggle" onclick="togglePassword('confirm-password', this)">
+                <i data-lucide="eye"></i>
+            </span>
+        </div>
+
+        <input type="submit" value="Register Account" id="submit-btn">
+        
+        <div class="auth-links">
+            <span style="color: var(--text-subtle)">Already have an account?</span> 
+            <a href="/login">Login here</a>
+        </div>
+    </form>
+
+    <a href="/" class="back-link"><i data-lucide="arrow-left"></i> Back to Home</a>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='api_client.js') }}"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script>
+        lucide.createIcons();
+        document.getElementById("register-form").addEventListener("submit", handleRegister);
+        
+        function toggleAdminSecret(role) {
+            document.getElementById('admin-secret-group').style.display = role === 'admin' ? 'block' : 'none';
+            document.getElementById('admin-secret').required = role === 'admin';
+        }
+    </script>
+</body>
+
+</html>

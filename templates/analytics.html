@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:var(--status-error-bg); color:var(--status-error); border:1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display:block!important; background:var(--status-success-bg); color:var(--status-success); border:1px solid rgba(16, 185, 129, 0.25); }
+        .report-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-top: 24px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/my.logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-glass-light);">
+            <span class="sidebar-title">SmartLMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i data-lucide="layout-dashboard" class="icon"></i> Dashboard</a></li>
+            <li><a href="/viewbook"><i data-lucide="book" class="icon"></i> Book Inventory</a></li>
+            <li><a href="/viewmember"><i data-lucide="users" class="icon"></i> Members</a></li>
+            <li><a href="/all-transactions"><i data-lucide="arrow-left-right" class="icon"></i> Transactions</a></li>
+            <li><a href="/analytics" class="active"><i data-lucide="bar-chart-2" class="icon"></i> Analytics</a></li>
+            <li><a href="/settings"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-nav">
+            <div class="page-title">
+                <p>System Reports</p>
+                <h1>Monthly Analytics</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <div class="glass-card" style="margin-bottom: 24px;">
+                <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 16px;">Generate Report</h3>
+                <form id="report-form" class="flex-start gap-4" style="align-items: center;">
+                    <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+                        <label for="report-year" style="display:none;">Year</label>
+                        <input type="number" id="report-year" class="form-control" value="2026" min="2020" max="2030" required>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+                        <label for="report-month" style="display:none;">Month</label>
+                        <select id="report-month" class="form-control" required>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7" selected>July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="padding: 11px 24px;">Generate</button>
+                </form>
+                <div id="msg-box" style="margin-top: 16px;"></div>
+            </div>
+
+            <div id="report-results" class="hidden">
+                <div class="report-grid">
+                    <div class="glass-card metric-card">
+                        <div class="metric-title">Books Issued</div>
+                        <div class="metric-value" id="r-issued">0</div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-title">Books Returned</div>
+                        <div class="metric-value" id="r-returned">0</div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-title">On Time</div>
+                        <div class="metric-value" id="r-ontime" style="color: var(--status-success);">0</div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-title">Late Returns</div>
+                        <div class="metric-value" id="r-late" style="color: var(--status-warning);">0</div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-title">Total Fines</div>
+                        <div class="metric-value" id="r-fines" style="color: var(--status-error);">₹0</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("admin");
+
+    document.getElementById("report-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const year = parseInt(document.getElementById("report-year").value);
+        const month = parseInt(document.getElementById("report-month").value);
+
+        try {
+            showMessage("msg-box", "Generating report...", "success");
+            const report = await apiClient.getMonthlyReport(year, month);
+
+            if (report.error) {
+                showMessage("msg-box", report.error, "error");
+                return;
+            }
+
+            document.getElementById("r-issued").textContent = report.booksIssued?.count || 0;
+            document.getElementById("r-returned").textContent = report.booksReturned?.count || 0;
+            document.getElementById("r-ontime").textContent = report.booksReturned?.onTime || 0;
+            document.getElementById("r-late").textContent = report.booksReturned?.late || 0;
+            document.getElementById("r-fines").textContent = "₹" + (report.fineCollection?.totalFine || 0);
+
+            document.getElementById("report-results").classList.remove("hidden");
+            hideMessage("msg-box");
+        } catch (error) {
+            showMessage("msg-box", error.message || "Failed to generate report", "error");
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,591 @@
+/* ============================================
+   SMART LIBRARY MANAGEMENT SYSTEM (LMS)
+   Figma Design System - Dark Glassmorphism
+   ============================================ */
+
+/* Import Google Font (Inter is widely used for modern SaaS) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ============================================
+   1. CSS VARIABLES (DESIGN TOKENS)
+   These variables define the entire color and styling theme based on the Figma design.
+   ============================================ */
+:root {
+    /* Main Background Colors */
+    --bg-dark: #0A0F1D; /* Deep navy/slate background from video */
+    --sidebar-bg: #0A0F1D; 
+    
+    /* Glassmorphism Surface Colors */
+    --bg-surface: #121826; /* Solid card background from video */
+    --bg-surface-hover: #1A2235; /* Slightly lighter on hover */
+    
+    /* Brand & Accent Colors */
+    --accent-purple: #A855F7; /* Vibrant Neon Purple */
+    --accent-blue: #6366F1; /* Indigo (Matches video primary buttons) */
+    --accent-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
+    
+    /* Status Colors (For Badges & Indicators) */
+    --status-success: #10B981; /* Green for Available/Returned */
+    --status-success-bg: rgba(16, 185, 129, 0.15);
+    
+    --status-warning: #F59E0B; /* Orange for Pending/Warnings */
+    --status-warning-bg: rgba(245, 158, 11, 0.15);
+    
+    --status-error: #EF4444; /* Red for Overdue/Errors */
+    --status-error-bg: rgba(239, 68, 68, 0.15);
+    
+    --status-info: #3B82F6; /* Blue for Issued/Active */
+    --status-info-bg: rgba(59, 130, 246, 0.15);
+    
+    /* Typography Colors */
+    --text-primary: #F8FAFC; /* Slate 50 */
+    --text-secondary: #94A3B8; /* Slate 400 */
+    --text-muted: #64748B; /* Slate 500 */
+    
+    /* Borders & Shadows */
+    --border-glass: #1E293B; /* Slate 800 - distinct border for cards */
+    --border-glass-light: #334155; /* Slate 700 */
+    
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3); /* Crisper shadows */
+    --shadow-glow: 0 4px 20px rgba(99, 102, 241, 0.4); /* Indigo glow */
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+}
+
+/* Premium Light Pink Glassmorphism Theme */
+.light-theme {
+    --bg-dark: #fdf2f8; /* Very light soft pink background */
+    --sidebar-bg: #fdf2f8; /* Matches the main background */
+    
+    --bg-surface: rgba(255, 255, 255, 0.75); /* Translucent white surface */
+    --bg-surface-hover: rgba(255, 255, 255, 0.95);
+    
+    --border-glass: rgba(244, 114, 182, 0.2); /* Soft pink glass border */
+    --border-glass-light: rgba(244, 114, 182, 0.35);
+    
+    --text-primary: #312e81; /* Deep rich indigo for high contrast text */
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --accent-blue: #ec4899; /* Vibrant pink */
+    --accent-purple: #f43f5e; /* Rose */
+    --accent-gradient: linear-gradient(135deg, #f472b6, #fb7185);
+    
+    --status-success: #059669;
+    --status-success-bg: rgba(16, 185, 129, 0.15);
+    --status-warning: #d97706;
+    --status-warning-bg: rgba(245, 158, 11, 0.15);
+    --status-error: #dc2626;
+    --status-error-bg: rgba(239, 68, 68, 0.15);
+}
+
+/* ============================================
+   2. GLOBAL RESET & BASE STYLES
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color-scheme: dark;
+    /* Optional: Adding a subtle glowing orb effect in the background to enhance glassmorphism */
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ============================================
+   3. APP LAYOUT STRUCTURE (SIDEBAR + MAIN CONTENT)
+   ============================================ */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* --- Sidebar Styles --- */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-glass);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.sidebar-header {
+    padding: 0 24px 32px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-logo {
+    width: 32px;
+    height: 32px;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 16px;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar-menu li a:hover {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+/* Active State for Sidebar Links */
+.sidebar-menu li a.active {
+    background-color: rgba(139, 92, 246, 0.1); /* Subtle purple background */
+    color: var(--accent-purple);
+    border-left: 3px solid var(--accent-purple);
+}
+
+.sidebar-menu li a .icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+}
+
+/* --- Main Content Area Styles --- */
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Top Navbar (Inside Main Content) */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 40px;
+    background: transparent;
+}
+
+.page-title h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.page-title p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Top Navbar Search Bar */
+.search-bar {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 250px;
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.search-bar input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Top Navbar User Profile */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 2px solid var(--border-glass-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--accent-purple);
+}
+
+/* Padding for all main page content below the navbar */
+.content-area {
+    padding: 0 40px 40px 40px;
+}
+
+/* ============================================
+   4. UI COMPONENTS (GLASSMORPHISM)
+   ============================================ */
+
+/* --- Standard Glass Card --- */
+.glass-card {
+    background: var(--bg-surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-soft);
+}
+
+/* --- Dashboard Metric Cards --- */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.metric-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.metric-title {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.metric-trend {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.trend-up { color: var(--status-success); }
+.trend-down { color: var(--status-error); }
+
+/* --- Buttons --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+/* Primary Button (Gradient) */
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Secondary Button (Ghost/Glass) */
+.btn-secondary {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-glass-light);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-surface-hover);
+}
+
+/* --- Status Badges --- */
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.badge.issued {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+}
+
+.badge.available, .badge.returned {
+    background: var(--status-success-bg);
+    color: var(--status-success);
+}
+
+.badge.overdue, .badge.error {
+    background: var(--status-error-bg);
+    color: var(--status-error);
+}
+
+/* --- Data Tables --- */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 16px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-glass);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 16px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.data-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-surface-hover);
+}
+
+/* --- Forms & Inputs --- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-glass-light);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--accent-purple);
+}
+
+select option {
+    background-color: var(--sidebar-bg);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   5. UTILITY CLASSES
+   ============================================ */
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-start { display: flex; justify-content: flex-start; align-items: center; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.text-center { text-align: center; }
+
+/* --- Profile Dropdown --- */
+.profile-dropdown-container {
+    position: relative;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    width: 250px;
+    background: var(--bg-surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 8px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+}
+
+.profile-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile-menu-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-menu-header .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+}
+
+.profile-info h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.profile-info p {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.profile-menu-divider {
+    height: 1px;
+    background: var(--border-glass);
+    margin: 8px 0;
+}
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.profile-menu-item i {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+}
+
+.profile-menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.profile-menu-item.text-danger {
+    color: var(--status-error);
+}
+.profile-menu-item.text-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* File Input Custom Styling */
+input[type='file']::file-selector-button {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: var(--radius-sm);
+    margin-right: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 4px 10px rgba(244, 114, 182, 0.2);
+}
+input[type='file']::file-selector-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+input[type='file']::file-selector-button:active {
+    transform: translateY(0);
+}

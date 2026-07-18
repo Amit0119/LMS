@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:var(--status-error-bg); color:var(--status-error); border:1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display:block!important; background:var(--status-success-bg); color:var(--status-success); border:1px solid rgba(16, 185, 129, 0.25); }
+        
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
+        
+        .settings-section { margin-bottom: 24px; }
+        .settings-section h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .settings-section h3 i { color: var(--accent-blue); width: 20px; }
+        
+        /* Toggle Switch */
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-glass); }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-info h4 { margin: 0 0 4px 0; color: var(--text-primary); font-size: 0.95rem; }
+        .setting-info p { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+        
+        .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--text-secondary); transition: .4s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: var(--accent-blue); }
+        input:checked + .toggle-slider:before { transform: translateX(20px); background-color: white; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/my.logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-glass-light);">
+            <span class="sidebar-title">SmartLMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i data-lucide="layout-dashboard" class="icon"></i> Dashboard</a></li>
+            <li><a href="/viewbook"><i data-lucide="book" class="icon"></i> Book Inventory</a></li>
+            <li><a href="/viewmember"><i data-lucide="users" class="icon"></i> Members</a></li>
+            <li><a href="/all-transactions"><i data-lucide="arrow-left-right" class="icon"></i> Transactions</a></li>
+            <li><a href="/analytics"><i data-lucide="bar-chart-2" class="icon"></i> Analytics</a></li>
+            <li><a href="/settings" class="active"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-nav">
+            <div class="page-title">
+                <p>System Configuration</p>
+                <h1>Settings</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div id="msg-box"></div>
+            
+            <form id="settings-form">
+                <div class="settings-grid">
+                    
+                    <!-- Left Column -->
+                    <div>
+                        <div class="glass-card settings-section">
+                            <h3><i data-lucide="sliders"></i> Library Policies</h3>
+                            
+                            <div class="form-group">
+                                <label for="finePerDay">Fine Per Day (₹)</label>
+                                <input type="number" id="finePerDay" class="form-control" value="5" min="0" required>
+                                <small style="color: var(--text-muted); display: block; margin-top: 4px;">Penalty applied for each day a book is overdue.</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="maxBorrowDays">Maximum Borrow Days</label>
+                                <input type="number" id="maxBorrowDays" class="form-control" value="14" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="maxBooksPerMember">Max Books Per Member</label>
+                                <input type="number" id="maxBooksPerMember" class="form-control" value="3" min="1" required>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card settings-section">
+                            <h3><i data-lucide="shield"></i> Security</h3>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Two-Factor Authentication (Admin)</h4>
+                                    <p>Require 2FA for all admin accounts</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="require2FA">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Force Password Reset</h4>
+                                    <p>Require students to change password every 90 days</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="forcePasswordReset">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div>
+                        <div class="glass-card settings-section">
+                            <h3><i data-lucide="settings-2"></i> System Configuration</h3>
+                            
+                            <div class="form-group">
+                                <label for="libraryName">Library Name</label>
+                                <input type="text" id="libraryName" class="form-control" value="SmartLMS" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="supportEmail">Support Email</label>
+                                <input type="email" id="supportEmail" class="form-control" value="support@smartlms.com" required>
+                            </div>
+                        </div>
+
+                        <div class="glass-card settings-section">
+                            <h3><i data-lucide="bell"></i> Notifications</h3>
+                            
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Overdue Reminders</h4>
+                                    <p>Automatically email members with overdue books</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifyOverdue" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Welcome Emails</h4>
+                                    <p>Send onboarding email when new member registers</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifyWelcome" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: right; margin-top: 24px;">
+                            <button type="button" class="btn btn-secondary" onclick="window.location.reload()" style="margin-right: 12px;">Discard Changes</button>
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i data-lucide="save" style="width: 16px;"></i> Save Settings
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </form>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='settings.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("admin");
+</script>
+
+</body>
+</html>

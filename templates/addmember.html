@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Member - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:var(--status-error-bg); color:var(--status-error); border:1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display:block!important; background:var(--status-success-bg); color:var(--status-success); border:1px solid rgba(16, 185, 129, 0.25); }
+        .form-card { max-width: 600px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/my.logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-glass-light);">
+            <span class="sidebar-title">SmartLMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i data-lucide="layout-dashboard" class="icon"></i> Dashboard</a></li>
+            <li><a href="/viewbook"><i data-lucide="book" class="icon"></i> Book Inventory</a></li>
+            <li><a href="/viewmember" class="active"><i data-lucide="users" class="icon"></i> Members</a></li>
+            <li><a href="/all-transactions"><i data-lucide="arrow-left-right" class="icon"></i> Transactions</a></li>
+            <li><a href="/analytics"><i data-lucide="bar-chart-2" class="icon"></i> Analytics</a></li>
+            <li><a href="/settings"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <header class="top-nav">
+            <div class="page-title">
+                <p>User Management</p>
+                <h1>Register New Member</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/viewmember" class="btn btn-secondary"><i data-lucide="arrow-left"></i> Back to Directory</a>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="glass-card form-card">
+                <form id="add-member-form">
+                    <div id="msg-box"></div>
+
+                    <div class="flex-between gap-4">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="member-id">Member ID</label>
+                            <input type="text" id="member-id" name="member_id" class="form-control" placeholder="e.g. M001" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="member-type">Member Type</label>
+                            <select id="member-type" name="member_type" class="form-control" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="student">Student</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="staff">Staff</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="member-name">Full Name</label>
+                        <input type="text" id="member-name" name="member_name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="member-email">Email Address</label>
+                        <input type="email" id="member-email" name="email" class="form-control" placeholder="e.g. rahul@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="member-phone">Phone Number</label>
+                        <input type="text" id="member-phone" name="phone" class="form-control" placeholder="e.g. 9876543210" required>
+                    </div>
+
+                    <div class="flex-between gap-4">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="department">Department (Optional)</label>
+                            <input type="text" id="department" name="department" class="form-control" placeholder="e.g. Computer Science">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="semester">Semester (Optional)</label>
+                            <select id="semester" name="semester" class="form-control">
+                                <option value="1">1st</option>
+                                <option value="2">2nd</option>
+                                <option value="3">3rd</option>
+                                <option value="4">4th</option>
+                                <option value="5">5th</option>
+                                <option value="6">6th</option>
+                                <option value="7">7th</option>
+                                <option value="8">8th</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex-between gap-4">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="roll-number">Roll Number (Optional)</label>
+                            <input type="text" id="roll-number" name="roll_number" class="form-control" placeholder="e.g. 21CS001">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="join-date">Join Date</label>
+                            <input type="date" id="join-date" name="join_date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Register Member</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='members.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("admin");
+    
+    // Set default date to today
+    document.getElementById('join-date').valueAsDate = new Date();
+    
+    document.getElementById("add-member-form").addEventListener("submit", handleAddMember);
+</script>
+
+</body>
+</html>

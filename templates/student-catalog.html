@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Catalog - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        #msg-box { display:none; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px; font-size:13px; font-weight:500; text-align:center; }
+        .msg-error { display:block!important; background:var(--status-error-bg); color:var(--status-error); border:1px solid rgba(239, 68, 68, 0.25); }
+        .msg-success { display:block!important; background:var(--status-success-bg); color:var(--status-success); border:1px solid rgba(16, 185, 129, 0.25); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-header" style="padding: 24px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-glass);">
+            <img src="{{ url_for('static', filename='my.logo.png') }}" alt="Logo" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(244, 114, 182, 0.5);">
+            <span id="library-name-display" style="font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">LMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/student-dashboard"><i data-lucide="layout-dashboard" class="icon"></i> My Dashboard</a></li>
+            <li><a href="/student-catalog" class="active"><i data-lucide="search" class="icon"></i> Search Catalog</a></li>
+            <li><a href="/student-borrowed"><i data-lucide="book-open" class="icon"></i> My Borrowed Books</a></li>
+            <li><a href="/pay-fines"><i data-lucide="credit-card" class="icon"></i> Pay Fines</a></li>
+            <li><a href="/profile"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-nav">
+            <div class="page-title">
+                <p>Library Resources</p>
+                <h1>Search Catalog</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- Filters & Search -->
+            <form id="catalog-search-form" onsubmit="event.preventDefault();" style="margin-bottom: 24px;">
+                <div id="msg-box"></div>
+                <div class="search-bar" style="width: 100%; max-width: 600px; display: flex; gap: 12px; border: none; background: transparent; padding: 0;">
+                    
+                    <div style="background: var(--bg-surface); border: 1px solid var(--border-glass); border-radius: 20px; padding: 8px 16px; flex: 1; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="search" style="width: 18px; color: var(--text-muted);"></i>
+                        <input type="text" id="search-query" name="search_query" onkeyup="searchBooks()" placeholder="Search books by title, author, or ID..." style="background: transparent; border: none; outline: none; color: var(--text-primary); width: 100%;">
+                    </div>
+                    
+                    <select id="search-category" name="search_category" onchange="searchBooks()" style="width: 200px; padding: 8px 16px; background: var(--bg-surface); border: 1px solid var(--border-glass); border-radius: 20px; color: var(--text-primary); outline: none;">
+                        <option value="">All Categories</option>
+                        <option value="science">Science</option>
+                        <option value="technology">Technology</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="literature">Literature</option>
+                        <option value="history">History</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                </div>
+            </form>
+            
+            <div class="glass-card">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Cover</th>
+                                <th>Book Name & Author</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="search-results-body">
+                            <!-- JS se dynamically fill hoga -->
+                            <tr>
+                                <td colspan="5" style="text-align:center; color:var(--text-muted); padding:40px;">
+                                    Search results will appear here...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='books.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("student");
+    document.getElementById("catalog-search-form").addEventListener("submit", handleCatalogSearch);
+    
+    // Automatically load all books initially if possible
+    if(typeof searchBooks === 'function') {
+        searchBooks();
+    }
+</script>
+
+</body>
+</html>

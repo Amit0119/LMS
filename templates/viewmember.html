@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members - Smart Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/my.logo.png" alt="Logo" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-glass-light);">
+            <span class="sidebar-title">SmartLMS</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="/"><i data-lucide="layout-dashboard" class="icon"></i> Dashboard</a></li>
+            <li><a href="/viewbook"><i data-lucide="book" class="icon"></i> Book Inventory</a></li>
+            <li><a href="/viewmember" class="active"><i data-lucide="users" class="icon"></i> Members</a></li>
+            <li><a href="/all-transactions"><i data-lucide="arrow-left-right" class="icon"></i> Transactions</a></li>
+            <li><a href="/analytics"><i data-lucide="bar-chart-2" class="icon"></i> Analytics</a></li>
+            <li><a href="/settings"><i data-lucide="settings" class="icon"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-nav">
+            <div class="page-title">
+                <p>User Management</p>
+                <h1>Members Directory</h1>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/addmember" class="btn btn-primary"><i data-lucide="user-plus"></i> Add member</a>
+                <div class="profile-dropdown-container" style="position: relative;">
+                    <div class="user-profile" id="profile-toggle">
+                        <div class="avatar" id="user-avatar-initial">A</div>
+                    </div>
+                    <div class="profile-menu" id="profile-menu">
+                        <div class="profile-menu-header">
+                            <div class="avatar" id="dropdown-avatar-initial">A</div>
+                            <div class="profile-info">
+                                <h4 id="dropdown-name">User Name</h4>
+                                <p id="dropdown-email">user@example.com</p>
+                            </div>
+                        </div>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/profile" class="profile-menu-item">
+                            <i data-lucide="user" style="width:16px;"></i> My Profile
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <i data-lucide="settings" style="width:16px;"></i> Settings
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="#" onclick="logout()" class="profile-menu-item text-danger">
+                            <i data-lucide="log-out" style="width:16px;"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="content-area">
+            
+            <div class="glass-card">
+                
+                <div class="flex-between mb-4">
+                    <h3 style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase;">All Registered Members</h3>
+                    <button class="btn btn-secondary" onclick="exportMembersCSV()" style="font-size: 0.85rem; padding: 8px 16px;">
+                        <i data-lucide="download" style="width: 14px;"></i> Export CSV
+                    </button>
+                </div>
+                
+                <div id="msg-box" style="display:none; margin-bottom: 20px; padding: 10px; border-radius: 6px;"></div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Member Info</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                                <th>Issued</th>
+                                <th>Fine</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-table-body">
+                            <!-- JS se dynamically fill hoga -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- JS Files -->
+<script src="{{ url_for('static', filename='utils.js') }}"></script>
+<script src="{{ url_for('static', filename='api_client.js') }}"></script>
+<script src="{{ url_for('static', filename='auth.js') }}"></script>
+<script src="{{ url_for('static', filename='members.js') }}"></script>
+<script>
+    lucide.createIcons();
+    checkAuth("admin");
+    displayAllMembers().then(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        if (query) {
+            const rows = document.querySelectorAll("#members-table-body tr");
+            const lowerQuery = query.toLowerCase();
+            rows.forEach(row => {
+                const idCell = row.cells[0]?.textContent?.toLowerCase() || "";
+                if (!idCell.includes(lowerQuery)) {
+                    row.style.display = "none";
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
