@@ -388,7 +388,8 @@ def update_member(member_id):
 @api.route('/members/<member_id>', methods=['DELETE'])
 @auth.require_auth('admin')
 def delete_member(member_id):
-    result = firebase.delete_member(member_id)
+    hard = request.args.get('hard') == 'true'
+    result = firebase.delete_member(member_id, hard_delete=hard)
     return jsonify(result), (200 if result['success'] else 400)
 
 @api.route('/members/<member_id>/upload-avatar', methods=['POST'])

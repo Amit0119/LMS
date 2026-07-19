@@ -170,28 +170,43 @@ class FirebaseService:
             return {'success': False, 'error': str(e)}
 
     @staticmethod
-    def delete_member(member_id):
+    def delete_member(member_id, hard_delete=False):
         try:
-            # Soft Delete (Block/Deactivate) instead of hard delete
-            # 1. Update members collection
-            db.collection('members').document(member_id).update({
-                'membershipStatus': 'blocked',
-                'updatedAt': firestore.SERVER_TIMESTAMP
-            })
-            
-            # 2. Update users collection
-            db.collection('users').document(member_id).update({
-                'isActive': False,
-                'updatedAt': firestore.SERVER_TIMESTAMP
-            })
-            
-            # 3. Disable user in Firebase Auth (prevents login)
-            try:
-                auth.update_user(member_id, disabled=True)
-            except Exception as auth_err:
-                print(f"Warning: Could not disable auth user - {auth_err}")
+            if hard_delete:
+                # Hard Delete (Completely remove)
+                try:
+                    db.collection('members').document(member_id).delete()
+                    db.collection('users').document(member_id).delete()
+                except Exception as db_err:
+                    print(f"Warning: Could not delete firestore docs - {db_err}")
                 
-            return {'success': True}
+                try:
+                    auth.delete_user(member_id)
+                except Exception as auth_err:
+                    print(f"Warning: Could not delete auth user - {auth_err}")
+                    
+                return {'success': True}
+            else:
+                # Soft Delete (Block/Deactivate)
+                # 1. Update members collection
+                db.collection('members').document(member_id).update({
+                    'membershipStatus': 'blocked',
+                    'updatedAt': firestore.SERVER_TIMESTAMP
+                })
+                
+                # 2. Update users collection
+                db.collection('users').document(member_id).update({
+                    'isActive': False,
+                    'updatedAt': firestore.SERVER_TIMESTAMP
+                })
+                
+                # 3. Disable user in Firebase Auth (prevents login)
+                try:
+                    auth.update_user(member_id, disabled=True)
+                except Exception as auth_err:
+                    print(f"Warning: Could not disable auth user - {auth_err}")
+                    
+                return {'success': True}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 

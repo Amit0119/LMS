@@ -162,8 +162,10 @@ class APIClient {
         return await this._request('PUT', `/members/${memberId}`, updates);
     }
 
-    async deleteMember(memberId) {
-        return await this._request('DELETE', `/members/${memberId}`);
+    async deleteMember(memberId, hard = false) {
+        let url = `/members/${memberId}`;
+        if (hard) url += '?hard=true';
+        return await this._request('DELETE', url);
     }
 
     async payMemberFine(memberId) {

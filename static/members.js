@@ -47,13 +47,17 @@ async function displayAllMembers() {
             let actionButtons = '';
             if (isAdmin) {
                 actionButtons = '<span class="badge" style="background: var(--accent-purple); color: #fff;">Admin</span>';
-            } else if (member.membershipStatus === 'pending_approval') {
-                actionButtons = `
-                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="approveMember('${APIClient.escapeHtml(member.id)}')">Approve</button>
-                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-error); border-color: rgba(239, 68, 68, 0.2);" onclick="rejectMember('${APIClient.escapeHtml(member.id)}')">Revoke</button>
-                `;
-            } else if (member.membershipStatus !== 'blocked') {
-                actionButtons = `<button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-error); border-color: rgba(239, 68, 68, 0.2);" onclick="deleteMemberConfirm('${APIClient.escapeHtml(member.id)}')"><i data-lucide="ban" style="width: 14px;"></i></button>`;
+            } else {
+                if (member.membershipStatus === 'pending_approval') {
+                    actionButtons = `
+                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.8rem;" title="Approve" onclick="approveMember('${APIClient.escapeHtml(member.id)}')">Approve</button>
+                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-warning); border-color: rgba(245, 158, 11, 0.2);" title="Revoke" onclick="rejectMember('${APIClient.escapeHtml(member.id)}')">Revoke</button>
+                    `;
+                } else if (member.membershipStatus !== 'blocked') {
+                    actionButtons = `<button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-warning); border-color: rgba(245, 158, 11, 0.2);" title="Block" onclick="deleteMemberConfirm('${APIClient.escapeHtml(member.id)}')"><i data-lucide="ban" style="width: 14px;"></i></button>`;
+                }
+                
+                actionButtons += ` <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-error); border-color: rgba(239, 68, 68, 0.2);" title="Delete" onclick="hardDeleteMemberConfirm('${APIClient.escapeHtml(member.id)}')"><i data-lucide="trash-2" style="width: 14px;"></i></button>`;
             }
 
             row.innerHTML = `
@@ -147,6 +151,29 @@ async function deleteMemberConfirm(memberId) {
 
         if (response.success) {
             showMessage("msg-box", "Member blocked successfully!", "success");
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showMessage("msg-box", response.error || "Delete failed", "error");
+        }
+    } catch (error) {
+        showMessage("msg-box", error.message, "error");
+    }
+}
+
+async function hardDeleteMemberConfirm(memberId) {
+    if (!confirm("PERMANENTLY delete this member? All their data will be removed and they can register again as a new user. This action cannot be undone.")) {
+        return;
+    }
+
+    try {
+        showMessage("msg-box", "Deleting permanently...", "success");
+
+        const response = await apiClient.deleteMember(memberId, true);
+
+        if (response.success) {
+            showMessage("msg-box", "Member permanently deleted!", "success");
             setTimeout(() => {
                 location.reload();
             }, 1000);
