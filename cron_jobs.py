@@ -28,7 +28,7 @@ def run_daily_cron():
         txn_id = doc.id
         
         try:
-            due_date = datetime.fromisoformat(txn['dueDate'].replace('Z', '+00:00'))
+            due_date = datetime.fromisoformat(txn['dueDate'].replace('+00:00Z', '+00:00').replace('Z', '+00:00'))
         except Exception:
             continue
             

@@ -330,7 +330,7 @@ class FirebaseService:
             
             txn = doc.to_dict()
             return_date = datetime.now(timezone.utc)
-            due_date = datetime.fromisoformat(txn['dueDate'].replace('Z', '+00:00'))
+            due_date = datetime.fromisoformat(txn['dueDate'].replace('+00:00Z', '+00:00').replace('Z', '+00:00'))
             
             # Calculate fine: ₹5 per day, max ₹500
             days_late = (return_date - due_date).days
@@ -380,7 +380,7 @@ class FirebaseService:
                 return {'success': False, 'error': 'Max renewal limit reached'}
             
             # Check if overdue
-            current_due = datetime.fromisoformat(txn['dueDate'].replace('Z', '+00:00'))
+            current_due = datetime.fromisoformat(txn['dueDate'].replace('+00:00Z', '+00:00').replace('Z', '+00:00'))
             now = datetime.now(timezone.utc)
             if now > current_due:
                 return {'success': False, 'error': 'Cannot renew an overdue book. Please return it and clear your fine.'}
@@ -618,8 +618,8 @@ class FirebaseService:
                 if txn.get('status') == 'returned':
                     returned_count += 1
                     if txn.get('returnDate'):
-                        return_date = datetime.fromisoformat(txn['returnDate'].replace('Z', '+00:00'))
-                        due_date = datetime.fromisoformat(txn['dueDate'].replace('Z', '+00:00'))
+                        return_date = datetime.fromisoformat(txn['returnDate'].replace('+00:00Z', '+00:00').replace('Z', '+00:00'))
+                        due_date = datetime.fromisoformat(txn['dueDate'].replace('+00:00Z', '+00:00').replace('Z', '+00:00'))
                         if return_date <= due_date:
                             on_time += 1
                         else:
@@ -664,7 +664,7 @@ class FirebaseService:
             for txn_doc in active_txns_query:
                 active_txns += 1
                 txn = txn_doc.to_dict()
-                due_date = datetime.fromisoformat(txn['dueDate'].replace('Z', '+00:00'))
+                due_date = datetime.fromisoformat(txn['dueDate'].replace('+00:00Z', '+00:00').replace('Z', '+00:00'))
                 if datetime.now(timezone.utc) > due_date:
                     overdue += 1
             
