@@ -35,8 +35,27 @@ async function displayAllMembers() {
             const fineAmount = member.outstandingFine || 0;
             const isSelf = currentUser && currentUser.uid === member.id;
             const isAdmin = member.type === 'admin' || member.role === 'admin';
-            const statusBadge = member.membershipStatus === 'blocked' ? '<span class="badge error">Blocked</span>' : '<span class="badge available">Active</span>';
-            
+            let statusBadge = '';
+            if (member.membershipStatus === 'pending_approval') {
+                statusBadge = '<span class="badge warning" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">Pending</span>';
+            } else if (member.membershipStatus === 'blocked') {
+                statusBadge = '<span class="badge error">Blocked</span>';
+            } else {
+                statusBadge = '<span class="badge available">Active</span>';
+            }
+
+            let actionButtons = '';
+            if (isAdmin) {
+                actionButtons = '<span class="badge" style="background: var(--accent-purple); color: #fff;">Admin</span>';
+            } else if (member.membershipStatus === 'pending_approval') {
+                actionButtons = `
+                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="approveMember('${APIClient.escapeHtml(member.id)}')">Approve</button>
+                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-error); border-color: rgba(239, 68, 68, 0.2);" onclick="rejectMember('${APIClient.escapeHtml(member.id)}')">Revoke</button>
+                `;
+            } else if (member.membershipStatus !== 'blocked') {
+                actionButtons = `<button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-error); border-color: rgba(239, 68, 68, 0.2);" onclick="deleteMemberConfirm('${APIClient.escapeHtml(member.id)}')"><i data-lucide="ban" style="width: 14px;"></i></button>`;
+            }
+
             row.innerHTML = `
                 <td style="color: var(--text-secondary);">${escapeHTML(APIClient.escapeHtml(member.id))}</td>
                 <td>
@@ -51,9 +70,7 @@ async function displayAllMembers() {
                 <td style="color: ${fineAmount > 0 ? 'var(--status-error)' : 'var(--status-success)'}; font-weight: 500;">₹${escapeHTML(fineAmount)}</td>
                 <td style="display: flex; gap: 8px; align-items: center;">
                     ${fineAmount > 0 ? `<button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="payMemberFine('${APIClient.escapeHtml(member.id)}')">Clear</button>` : ''}
-                    ${isAdmin ? '<span class="badge" style="background: var(--accent-purple); color: #fff;">Admin</span>' : 
-                      member.membershipStatus === 'blocked' ? '' : 
-                      `<button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--status-error); border-color: rgba(239, 68, 68, 0.2);" onclick="deleteMemberConfirm('${APIClient.escapeHtml(member.id)}')"><i data-lucide="ban" style="width: 14px;"></i></button>`}
+                    ${actionButtons}
                 </td>
             `;
             tableBody.appendChild(row);
@@ -185,4 +202,38 @@ function exportMembersCSV() {
         showMessage('msg-box', 'Error exporting members', 'error');
         console.error(err);
     });
+}
+
+// Admin Approval Actions
+async function approveMember(memberId) {
+    if (!confirm('Are you sure you want to approve this member?')) return;
+    
+    try {
+        const response = await apiClient.updateMember(memberId, { membershipStatus: 'active' });
+        if (response && response.success) {
+            showMessage('msg-box', 'Member approved successfully!', 'success');
+            displayAllMembers();
+        } else {
+            showMessage('msg-box', response.error || 'Failed to approve member', 'error');
+        }
+    } catch (error) {
+        showMessage('msg-box', error.message, 'error');
+    }
+}
+
+async function rejectMember(memberId) {
+    if (!confirm('Are you sure you want to reject and revoke this member?')) return;
+    
+    try {
+        // deleteMember does a soft delete (block) in backend
+        const response = await apiClient.deleteMember(memberId);
+        if (response && response.success) {
+            showMessage('msg-box', 'Member request revoked successfully.', 'success');
+            displayAllMembers();
+        } else {
+            showMessage('msg-box', response.error || 'Failed to revoke member', 'error');
+        }
+    } catch (error) {
+        showMessage('msg-box', error.message, 'error');
+    }
 }

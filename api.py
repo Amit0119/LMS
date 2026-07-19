@@ -122,6 +122,13 @@ def login():
         print(f"Auth check error: {e}")
         # SECURITY: If we can't verify email status, deny login
         return jsonify({'error': 'Unable to verify account status. Please try again later.'}), 500
+
+    # Admin Approval Check
+    if user.get('role') != 'admin':
+        # Check from users collection or members collection
+        # We stored it in users collection during registration
+        if user.get('membershipStatus') == 'pending_approval':
+            return jsonify({'error': 'Your account is pending admin approval. Please wait for the librarian to approve your registration.'}), 403
         
     token = auth.generate_token(user['email'], user['role'], user['uid'])
     

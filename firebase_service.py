@@ -377,6 +377,9 @@ class FirebaseService:
             
             hashed_password = AuthService.hash_password(password)
             
+            # Determine initial status
+            initial_status = 'active' if user_data.get('role') == 'admin' else 'pending_approval'
+
             user_doc = {
                 'uid': user.uid,
                 'email': email,
@@ -388,7 +391,8 @@ class FirebaseService:
                 'createdAt': firestore.SERVER_TIMESTAMP,
                 'lastLogin': None,
                 'isActive': True,
-                'emailVerified': False
+                'emailVerified': False,
+                'membershipStatus': initial_status
             }
             
             db.collection('users').document(user.uid).set(user_doc)
@@ -402,7 +406,7 @@ class FirebaseService:
                 'outstandingFine': 0,
                 'totalBooksIssued': 0,
                 'currentlyBorrowed': 0,
-                'membershipStatus': 'active',
+                'membershipStatus': initial_status,
                 'createdAt': firestore.SERVER_TIMESTAMP,
                 'updatedAt': firestore.SERVER_TIMESTAMP,
                 'avatar': {'url': None, 'cloudinaryId': None}
