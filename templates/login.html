@@ -23,18 +23,13 @@
         .auth-logo {
             margin-bottom: 24px;
         }
-        .auth-logo div {
-            width: 50px;
-            height: 50px;
-            background: var(--accent-gradient);
+        .auth-logo img {
+            width: 60px;
+            height: 60px;
             border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 20px;
+            object-fit: contain;
             margin: 0 auto;
+            display: block;
         }
         .auth-title {
             font-size: 1.5rem;
@@ -94,7 +89,7 @@
     <div class="auth-container">
         <div class="glass-card auth-card">
             <div class="auth-logo">
-                <div>LMS</div>
+                <img src="{{ url_for('static', filename='my.logo.png') }}" alt="Library Logo">
             </div>
             <h1 class="auth-title">Welcome back</h1>
             <p class="auth-subtitle">Enter your credentials to access your account</p>

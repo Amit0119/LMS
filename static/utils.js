@@ -228,6 +228,9 @@ function exportToCSV(headers, rows, filename) {
 
 // --- SECURITY UTILITIES ---
 function escapeHTML(str) {
+
+// --- SECURITY UTILITIES ---
+function escapeHTML(str) {
     if (str === null || str === undefined) return "";
     return String(str)
         .replace(/&/g, "&amp;")
@@ -236,3 +239,47 @@ function escapeHTML(str) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+// --- RESPONSIVE SIDEBAR (MOBILE) ---
+document.addEventListener("DOMContentLoaded", function() {
+    const topNav = document.querySelector('.top-nav');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (topNav && sidebar) {
+        // Inject hamburger button
+        const btn = document.createElement('button');
+        btn.className = 'mobile-menu-btn';
+        btn.innerHTML = '<i data-lucide="menu"></i>';
+        
+        // Find page title to insert button next to it
+        const pageTitle = topNav.querySelector('.page-title');
+        if (pageTitle) {
+            pageTitle.style.display = 'flex';
+            pageTitle.style.alignItems = 'center';
+            pageTitle.style.gap = '12px';
+            pageTitle.insertBefore(btn, pageTitle.firstChild);
+        } else {
+            topNav.insertBefore(btn, topNav.firstChild);
+        }
+        
+        // Re-initialize lucide icons for the new button
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+        
+        // Toggle sidebar
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation(); // prevent document click from firing immediately
+            sidebar.classList.toggle('mobile-open');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            if (sidebar.classList.contains('mobile-open')) {
+                if (!sidebar.contains(e.target) && !btn.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                }
+            }
+        });
+    }
+});

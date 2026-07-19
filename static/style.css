@@ -589,3 +589,86 @@ input[type='file']::file-selector-button:hover {
 input[type='file']::file-selector-button:active {
     transform: translateY(0);
 }
+
+/* ============================================
+   6. RESPONSIVE DESIGN (MOBILE)
+   ============================================ */
+/* Hide mobile menu button by default on desktop */
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    margin-right: 8px;
+}
+.mobile-menu-btn:hover {
+    background: var(--bg-surface);
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        position: relative;
+    }
+    
+    /* Sidebar becomes a drawer on mobile */
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 999;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-glow);
+    }
+    
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    /* Show hamburger menu */
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Adjust top nav for mobile */
+    .top-nav {
+        padding: 16px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    /* Fix page title sizing on mobile */
+    .page-title h1 {
+        font-size: 1.25rem;
+    }
+    
+    .content-area {
+        padding: 16px;
+    }
+    
+    /* Adjust metrics grid for mobile */
+    .metrics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+    
+    /* Settings Grid */
+    .settings-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Make tables scrollable instead of shrinking */
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .data-table th, .data-table td {
+        white-space: nowrap;
+    }
+}
