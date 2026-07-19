@@ -107,13 +107,18 @@ def login():
     try:
         fb_user = firebase_auth.get_user(user['uid'])
         if not fb_user.email_verified:
-            # Resend verification email if not verified
+            # Resend verification email if not verified using Firebase REST API
             try:
-                link = firebase_auth.generate_email_verification_link(email)
-                from email_service import EmailService
-                EmailService.send_verification_email(email, user.get('fullName', 'User'), link)
-            except Exception:
-                pass  # Don't block login error for resend failure
+                import requests
+                api_key = os.getenv('FIREBASE_API_KEY')
+                if api_key:
+                    sign_in_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
+                    res = requests.post(sign_in_url, json={"email": email, "password": password, "returnSecureToken": True})
+                    if res.ok:
+                        verify_url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={api_key}"
+                        requests.post(verify_url, json={"requestType": "VERIFY_EMAIL", "idToken": res.json().get("idToken")})
+            except Exception as email_err:
+                print(f"Warning: Could not resend email - {email_err}")
             return jsonify({
                 'error': 'Email not verified. A new verification link has been sent to your email. Please check your inbox and spam folder.',
                 'code': 'EMAIL_NOT_VERIFIED'

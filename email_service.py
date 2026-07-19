@@ -67,14 +67,18 @@ class EmailService:
         part = MIMEText(html, "html")
         message.attach(part)
         
-        try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(sender_email, sender_password)
-                server.sendmail(sender_email, receiver_email, message.as_string())
-            return True
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-            return False
+        def send_email_async():
+            try:
+                # Add 5 second timeout to prevent hanging on Render where SMTP might be blocked
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=5) as server:
+                    server.login(sender_email, sender_password)
+                    server.sendmail(sender_email, receiver_email, message.as_string())
+            except Exception as e:
+                print(f"Failed to send email async: {e}")
+
+        # Send in background so UI doesn't hang if SMTP is blocked
+        threading.Thread(target=send_email_async).start()
+        return True
 
     @staticmethod
     def send_password_reset_email(receiver_email, user_name, reset_link):
@@ -135,14 +139,16 @@ class EmailService:
         part = MIMEText(html, "html")
         message.attach(part)
 
-        try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(sender_email, sender_password)
-                server.sendmail(sender_email, receiver_email, message.as_string())
-            return True
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-            return False
+        def send_async():
+            try:
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=5) as server:
+                    server.login(sender_email, sender_password)
+                    server.sendmail(sender_email, receiver_email, message.as_string())
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+
+        threading.Thread(target=send_async).start()
+        return True
 
     @staticmethod
     def send_password_change_confirmation(receiver_email, user_name):
@@ -197,11 +203,13 @@ class EmailService:
         part = MIMEText(html, "html")
         message.attach(part)
 
-        try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(sender_email, sender_password)
-                server.sendmail(sender_email, receiver_email, message.as_string())
-            return True
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-            return False
+        def send_async():
+            try:
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=5) as server:
+                    server.login(sender_email, sender_password)
+                    server.sendmail(sender_email, receiver_email, message.as_string())
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+
+        threading.Thread(target=send_async).start()
+        return True

@@ -455,11 +455,32 @@ class FirebaseService:
             except Exception as cleanup_err:
                 print(f"Warning: Orphan cleanup failed - {cleanup_err}")
             
-            # Generate and send verification link
+            # Generate and send verification link using Firebase REST API
             try:
-                link = auth.generate_email_verification_link(email)
-                from email_service import EmailService
-                EmailService.send_verification_email(email, user_data.get('fullName', 'User'), link)
+                import requests
+                api_key = os.getenv('FIREBASE_API_KEY')
+                if api_key:
+                    # 1. Sign in to get ID token
+                    sign_in_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
+                    res = requests.post(sign_in_url, json={
+                        "email": email,
+                        "password": password,
+                        "returnSecureToken": True
+                    })
+                    if res.ok:
+                        id_token = res.json().get("idToken")
+                        # 2. Send email verification
+                        verify_url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={api_key}"
+                        verify_res = requests.post(verify_url, json={
+                            "requestType": "VERIFY_EMAIL",
+                            "idToken": id_token
+                        })
+                        if not verify_res.ok:
+                            print(f"Warning: Failed to send verify email via REST - {verify_res.text}")
+                    else:
+                        print(f"Warning: Failed to sign in for verification - {res.text}")
+                else:
+                    print("Warning: FIREBASE_API_KEY not found in .env")
             except Exception as email_err:
                 print(f"Warning: Could not send email - {email_err}")
                 

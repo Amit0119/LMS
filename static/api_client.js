@@ -44,8 +44,13 @@ class APIClient {
             }
             
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP ${response.status}`);
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                } else {
+                    throw new Error(`Server Error (${response.status}): The server might be down or taking too long to respond.`);
+                }
             }
             
             return await response.json();
