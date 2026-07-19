@@ -278,8 +278,10 @@ class FirebaseService:
             issue_date = datetime.now(timezone.utc)
             due_date = issue_date + timedelta(days=14)
             
-            txn_data['issueDate'] = issue_date.isoformat() + 'Z'
-            txn_data['dueDate'] = due_date.isoformat() + 'Z'
+            # isoformat() for aware datetime already includes timezone info (+00:00)
+            # which is valid ISO 8601. Avoid appending extra 'Z'.
+            txn_data['issueDate'] = issue_date.isoformat()
+            txn_data['dueDate'] = due_date.isoformat()
             txn_data['returnDate'] = None
             txn_data['returnedBy'] = None
             txn_data['fine'] = 0
@@ -336,7 +338,7 @@ class FirebaseService:
             if days_late > 0:
                 fine = min(days_late * 5, 500)
             
-            return_data['returnDate'] = return_date.isoformat() + 'Z'
+            return_data['returnDate'] = return_date.isoformat()
             return_data['fine'] = fine
             return_data['status'] = 'returned'
             return_data['updatedAt'] = firestore.SERVER_TIMESTAMP
@@ -387,12 +389,12 @@ class FirebaseService:
             new_due = now + timedelta(days=14)
             
             db.collection('transactions').document(txn_id).update({
-                'dueDate': new_due.isoformat() + 'Z',
+                'dueDate': new_due.isoformat(),
                 'renewalCount': firestore.Increment(1),
                 'updatedAt': firestore.SERVER_TIMESTAMP
             })
             
-            return {'success': True, 'newDueDate': new_due.isoformat() + 'Z'}
+            return {'success': True, 'newDueDate': new_due.isoformat()}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 

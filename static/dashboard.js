@@ -12,14 +12,81 @@ async function loadStudentDashboard() {
         if (welcomeEl) {
             welcomeEl.textContent = user.fullName || user.email;
         }
+        
+        // Fetch stats
+        const profileData = await apiClient.getProfile();
+        if (profileData && profileData.stats) {
+            const stats = profileData.stats;
+            
+            const borrowedEl = document.getElementById("student-borrowed-count");
+            if (borrowedEl) borrowedEl.textContent = stats.currently_issued || 0;
+            
+            const fineEl = document.getElementById("student-fine-count");
+            if (fineEl) fineEl.textContent = `₹${stats.total_fine || 0}`;
+            
+            // Overdue calculation requires loading transactions
+        }
 
-        await loadBorrowedBooks();
-        await loadNotifications();
-        await loadOutstandingFines();
+        await loadStudentRecentHistory();
 
     } catch (error) {
         console.error('Dashboard error:', error);
         showMessage("msg-box", "Failed to load dashboard", "error");
+    }
+}
+
+async function loadStudentRecentHistory() {
+    const tableBody = document.getElementById("student-recent-history-body");
+    if (!tableBody) return;
+    
+    try {
+        const user = getCurrentUser();
+        const transactions = await apiClient.getAllTransactions({ memberId: user.uid });
+        
+        let overdueCount = 0;
+        tableBody.innerHTML = '';
+        
+        if (transactions.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent transactions</td></tr>';
+            return;
+        }
+        
+        // Sort by issue date descending
+        transactions.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate));
+        
+        // Take top 5 for history
+        const recentTxns = transactions.slice(0, 5);
+        
+        for (let txn of transactions) {
+            if (txn.status === 'issued') {
+                const daysRemaining = APIClient.daysBetween(new Date().toISOString(), txn.dueDate);
+                if (daysRemaining < 0) {
+                    overdueCount++;
+                }
+            }
+        }
+        
+        const overdueEl = document.getElementById("student-overdue-count");
+        if (overdueEl) overdueEl.textContent = overdueCount;
+        
+        for (let txn of recentTxns) {
+            const row = document.createElement("tr");
+            const isOverdue = txn.status === 'issued' && APIClient.daysBetween(new Date().toISOString(), txn.dueDate) < 0;
+            const statusClass = txn.status === 'returned' ? 'returned' : (isOverdue ? 'overdue' : 'issued');
+            const statusText = txn.status === 'returned' ? 'Returned' : (isOverdue ? 'Overdue' : 'Issued');
+            
+            row.innerHTML = `
+                <td style="font-weight: 500;">${escapeHTML(APIClient.escapeHtml(txn.bookName))}</td>
+                <td style="color: var(--text-secondary);">${escapeHTML(APIClient.escapeHtml(txn.bookId))}</td>
+                <td>${escapeHTML(APIClient.formatDate(txn.issueDate))}</td>
+                <td style="color: ${isOverdue ? 'var(--status-error)' : 'inherit'};">${escapeHTML(APIClient.formatDate(txn.dueDate))}</td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+            `;
+            tableBody.appendChild(row);
+        }
+    } catch (e) {
+        console.error(e);
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--status-error); padding: 20px;">Error loading history</td></tr>';
     }
 }
 

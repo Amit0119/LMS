@@ -62,7 +62,11 @@ class APIClient {
 
     // AUTH
     async register(userData) {
-        return await this._request('POST', '/auth/register', userData);
+        return await this._request('POST', '/auth/register', userData, false);
+    }
+
+    async getProfile() {
+        return await this._request('GET', '/auth/profile', null, true);
     }
 
     async login(email, password) {
@@ -241,7 +245,12 @@ class APIClient {
 
     // HELPERS
     static formatDate(dateString) {
-        const date = new Date(dateString);
+        if (!dateString) return '-';
+        // Fix for badly formatted backend dates like +00:00Z
+        const cleanString = dateString.replace('+00:00Z', 'Z').replace('+00:00', 'Z');
+        const date = new Date(cleanString);
+        if (isNaN(date.getTime())) return dateString; // Fallback to raw string if completely unparseable
+        
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const day = String(date.getDate()).padStart(2, '0');
         const month = months[date.getMonth()];
