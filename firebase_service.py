@@ -435,7 +435,8 @@ class FirebaseService:
                 for old_doc in old_docs:
                     if old_doc.id != user.uid:
                         db.collection('users').document(old_doc.id).delete()
-                        print(f"Cleaned up orphaned user doc: {old_doc.id}")
+                        db.collection('members').document(old_doc.id).delete()
+                        print(f"Cleaned up orphaned user and member doc: {old_doc.id}")
             except Exception as cleanup_err:
                 print(f"Warning: Orphan cleanup failed - {cleanup_err}")
             
