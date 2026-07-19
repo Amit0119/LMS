@@ -67,16 +67,14 @@ class EmailService:
         part = MIMEText(html, "html")
         message.attach(part)
         
-        def send_email_async():
-            try:
-                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                    server.login(sender_email, sender_password)
-                    server.sendmail(sender_email, receiver_email, message.as_string())
-            except Exception as e:
-                print(f"Failed to send email async: {e}")
-
-        threading.Thread(target=send_email_async).start()
-        return True
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, receiver_email, message.as_string())
+            return True
+        except Exception as e:
+            print(f"Failed to send email: {e}")
+            return False
 
     @staticmethod
     def send_password_reset_email(receiver_email, user_name, reset_link):

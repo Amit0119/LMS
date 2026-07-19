@@ -149,6 +149,22 @@ class FirebaseService:
         try:
             updates['updatedAt'] = firestore.SERVER_TIMESTAMP
             db.collection('members').document(member_id).update(updates)
+            
+            user_updates = {}
+            if 'membershipStatus' in updates:
+                user_updates['membershipStatus'] = updates['membershipStatus']
+            if 'fullName' in updates:
+                user_updates['fullName'] = updates['fullName']
+            if 'phone' in updates:
+                user_updates['phone'] = updates['phone']
+                
+            if user_updates:
+                user_updates['updatedAt'] = firestore.SERVER_TIMESTAMP
+                try:
+                    db.collection('users').document(member_id).update(user_updates)
+                except Exception as user_e:
+                    print(f"Warning: Could not sync update to users collection - {user_e}")
+                    
             return {'success': True}
         except Exception as e:
             return {'success': False, 'error': str(e)}
