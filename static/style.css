@@ -129,6 +129,11 @@ a {
     padding: 24px 0;
     flex-shrink: 0;
     z-index: 10;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.collapsed {
+    margin-left: -260px;
 }
 
 .sidebar-header {
@@ -205,10 +210,15 @@ a {
 /* Top Navbar (Inside Main Content) */
 .top-nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 20px;
     padding: 24px 40px;
     background: transparent;
+}
+
+.page-title {
+    flex: 1;
 }
 
 .page-title h1 {
@@ -593,9 +603,9 @@ input[type='file']::file-selector-button:active {
 /* ============================================
    6. RESPONSIVE DESIGN (MOBILE)
    ============================================ */
-/* Hide mobile menu button by default on desktop */
+/* Show sidebar toggle button on all screen sizes */
 .mobile-menu-btn {
-    display: none;
+    display: flex;
     background: transparent;
     border: none;
     color: var(--text-primary);
@@ -641,13 +651,61 @@ input[type='file']::file-selector-button:active {
         padding: 16px;
         flex-wrap: wrap;
         gap: 16px;
+        align-items: flex-start;
+    }
+    
+    .page-title {
+        min-width: 0;
     }
     
     /* Fix page title sizing on mobile */
     .page-title h1 {
         font-size: 1.25rem;
     }
+    .page-title h2 {
+        font-size: 1.5rem !important;
+    }
     
+    /* Nav actions */
+    .nav-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 8px;
+    }
+    
+    .search-bar {
+        width: 100%;
+        order: 3;
+    }
+    
+    /* Ensure flex-between containers wrap appropriately */
+    .flex-between {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .flex-between[style*="align-items: stretch"] {
+        flex-direction: column;
+    }
+    .flex-between[style*="align-items: stretch"] > div {
+        width: 100%;
+        flex: none !important;
+    }
+    
+    /* Quick Operations horizontal scroll */
+    .glass-card > div[style*="display: flex; gap: 16px;"] {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 12px;
+    }
+    .glass-card > div[style*="display: flex; gap: 16px;"] > a {
+        flex: 0 0 110px !important;
+    }
+
     .content-area {
         padding: 16px;
     }

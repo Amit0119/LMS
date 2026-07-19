@@ -248,13 +248,10 @@ document.addEventListener("DOMContentLoaded", function() {
         btn.className = 'mobile-menu-btn';
         btn.innerHTML = '<i data-lucide="menu"></i>';
         
-        // Find page title to insert button next to it
+        // Find page title to insert button before it
         const pageTitle = topNav.querySelector('.page-title');
         if (pageTitle) {
-            pageTitle.style.display = 'flex';
-            pageTitle.style.alignItems = 'center';
-            pageTitle.style.gap = '12px';
-            pageTitle.insertBefore(btn, pageTitle.firstChild);
+            topNav.insertBefore(btn, pageTitle);
         } else {
             topNav.insertBefore(btn, topNav.firstChild);
         }
@@ -267,12 +264,16 @@ document.addEventListener("DOMContentLoaded", function() {
         // Toggle sidebar
         btn.addEventListener('click', function(e) {
             e.stopPropagation(); // prevent document click from firing immediately
-            sidebar.classList.toggle('mobile-open');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
         });
         
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(e) {
-            if (sidebar.classList.contains('mobile-open')) {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
                 if (!sidebar.contains(e.target) && !btn.contains(e.target)) {
                     sidebar.classList.remove('mobile-open');
                 }
