@@ -30,7 +30,14 @@ async function displayAllBooks(filters = {}) {
 
         for (let book of books) {
             const row = document.createElement("tr");
-            const coverUrl = (book.cover && book.cover.sizes && book.cover.sizes.thumbnail) ? book.cover.sizes.thumbnail : '/static/my_logo.jpg';
+            let coverUrl = '/static/my.logo.png'; // Updated to correct default image name
+            if (book.cover) {
+                if (book.cover.sizes && book.cover.sizes.thumbnail) {
+                    coverUrl = book.cover.sizes.thumbnail;
+                } else if (book.cover.url) {
+                    coverUrl = book.cover.url;
+                }
+            }
             const available = book.copies?.available || 0;
             const statusBadge = available > 0 ? `<span class="badge available">Available</span>` : `<span class="badge error">Issued</span>`;
             

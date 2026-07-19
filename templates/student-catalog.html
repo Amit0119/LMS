@@ -127,12 +127,84 @@
 <script>
     lucide.createIcons();
     checkAuth("student");
-    document.getElementById("catalog-search-form").addEventListener("submit", handleCatalogSearch);
     
-    // Automatically load all books initially if possible
-    if(typeof searchBooks === 'function') {
+    async function searchBooks() {
+        const query = document.getElementById("search-query").value;
+        const category = document.getElementById("search-category").value;
+        
+        try {
+            const msgBox = document.getElementById("msg-box");
+            if(msgBox && msgBox.style.display !== 'none' && !msgBox.innerText) {
+               // Only show loading if it's the first load or slow
+            }
+            
+            let filters = {};
+            if (category) filters.category = category;
+            const response = await apiClient.getAllBooks(filters);
+            
+            let books = response.books || [];
+            
+            if (query.trim() !== '') {
+                const q = query.toLowerCase();
+                books = books.filter(b => 
+                    (b.name && b.name.toLowerCase().includes(q)) || 
+                    (b.author && b.author.toLowerCase().includes(q)) || 
+                    (b.id && b.id.toLowerCase().includes(q))
+                );
+            }
+            
+            const tableBody = document.getElementById("search-results-body");
+            if (books.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">No books found matching your search</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = '';
+            for (let book of books) {
+                const row = document.createElement("tr");
+                let coverUrl = '/static/my.logo.png';
+                if (book.cover) {
+                    if (book.cover.sizes && book.cover.sizes.thumbnail) {
+                        coverUrl = book.cover.sizes.thumbnail;
+                    } else if (book.cover.url) {
+                        coverUrl = book.cover.url;
+                    }
+                }
+                
+                const available = book.copies?.available || 0;
+                const statusBadge = available > 0 ? `<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">Available</span>` : `<span class="badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">Issued</span>`;
+                
+                row.innerHTML = `
+                    <td><img src="${APIClient.escapeHtml(coverUrl)}" style="width:36px; height:50px; object-fit:cover; border-radius:4px;" alt="cover"></td>
+                    <td>
+                        <div style="font-weight: 500;">${APIClient.escapeHtml(book.name)}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">by ${APIClient.escapeHtml(book.author)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">ID: ${APIClient.escapeHtml(book.id)}</div>
+                    </td>
+                    <td style="text-transform: capitalize;">${APIClient.escapeHtml(book.category)}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; opacity: 0.7; cursor: not-allowed;" title="Visit library desk to issue this book">Visit Library</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            }
+        } catch (error) {
+            console.error('Search failed:', error);
+            const tableBody = document.getElementById("search-results-body");
+            if(tableBody) tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--status-error);">Failed to load catalog. Please try again.</td></tr>';
+        }
+    }
+
+    function handleCatalogSearch(e) {
+        if(e) e.preventDefault();
         searchBooks();
     }
+    
+    document.getElementById("catalog-search-form").addEventListener("submit", handleCatalogSearch);
+    
+    // Automatically load all books initially
+    searchBooks();
 </script>
 
 </body>

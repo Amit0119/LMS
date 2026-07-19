@@ -341,10 +341,14 @@ def upload_book_cover(book_id):
     result = cloudinary_svc.upload_book_cover(file, book_id)
     
     if result['success']:
-        firebase.update_book(book_id, {'cover': {
+        cover_data = {
             'url': result['url'],
             'cloudinaryId': result['cloudinaryId']
-        }})
+        }
+        if 'sizes' in result:
+            cover_data['sizes'] = result['sizes']
+            
+        firebase.update_book(book_id, {'cover': cover_data})
     
     return jsonify(result), (200 if result['success'] else 400)
 
