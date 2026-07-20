@@ -103,7 +103,7 @@ async function handleReturnBook(event) {
 
         if (response.success) {
             showMessage("msg-box", `Book returned! Fine: ₹${response.fine}`, "success");
-            document.getElementById("return-form").reset();
+            document.getElementById("return-book-form").reset();
             setTimeout(() => {
                 window.location.href = "/all-transactions";
             }, 1500);
