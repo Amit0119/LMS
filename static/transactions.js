@@ -24,7 +24,7 @@ async function displayAllTransactions() {
 
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td style="color: var(--text-secondary);">${escapeHTML(txn.id ? APIClient.escapeHtml(txn.id).substring(0,8) : 'TXN-00')}</td>
+                <td style="color: var(--text-secondary);">${escapeHTML(txn.id ? APIClient.escapeHtml(txn.id) : 'TXN-00')}</td>
                 <td>
                     <div style="font-weight: 500;">${escapeHTML(APIClient.escapeHtml(txn.memberName))}</div>
                     <div style="font-size: 0.8rem; color: var(--text-secondary);">${escapeHTML(APIClient.escapeHtml(txn.bookName))}</div>
